@@ -1,8 +1,9 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import { registerValidator } from './models/validations/auth.js';
+import { registerValidator,loginValidation, postCreateValidation} from './validations.js';
 import checkAuth from './utils/checkAuth.js'
 import { register,login,getMe } from './controllers/UserController.js';
+import * as PostController from './controllers/PostController.js';
 
 mongoose.set('strictQuery', true)
 mongoose.connect('mongodb+srv://andrii:04071990@cluster0.bpsvecv.mongodb.net/users?retryWrites=true&w=majority').then(()=>{
@@ -14,15 +15,14 @@ const app=express()
 app.use(express.json())
 
 app.post('/auth/login', login)
-
-app.get('/',(req,res)=>{
-    res.send('Hello Client')
-})
-
 app.post('/auth/register',registerValidator,register)
-
-
 app.get('/auth/me',checkAuth,getMe)
+
+app.get('/posts',checkAuth,PostController.getAll)
+app.get('/posts/:id',checkAuth,PostController.getOne)
+app.post('/posts',checkAuth,postCreateValidation,PostController.create)
+app.delete('/posts/:id',checkAuth,PostController.remove)
+app.patch('/posts/:id',checkAuth,PostController.update)
 
 //Server Start
 app.listen(4444,(err)=>{

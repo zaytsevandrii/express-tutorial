@@ -5,6 +5,7 @@ import checkAuth from './utils/checkAuth.js'
 import { register,login,getMe } from './controllers/UserController.js';
 import * as PostController from './controllers/PostController.js';
 import multer from 'multer';
+import cors from 'cors';
 
 
 mongoose.set('strictQuery', true)
@@ -13,7 +14,7 @@ mongoose.connect('mongodb+srv://andrii:04071990@cluster0.bpsvecv.mongodb.net/use
 }).catch((err)=>console.log('DB',err))
 
 const app=express()
-
+app.use(cors())
 const storage = multer.diskStorage({
     destination:(_,__,cb)=>{
         cb(null,'uploads')
@@ -38,7 +39,9 @@ app.post('/uploads',checkAuth,upload.single('image'),(req,res)=>{
 })
 app.use('/uploads',express.static('uploads'))
 
+app.get('/tags',PostController.getLastTags)
 app.get('/posts',PostController.getAll)
+app.get('/posts/tags',PostController.getLastTags)
 app.get('/posts/:id',PostController.getOne)
 app.post('/posts',checkAuth,postCreateValidation,PostController.create)
 app.delete('/posts/:id',checkAuth,PostController.remove)
